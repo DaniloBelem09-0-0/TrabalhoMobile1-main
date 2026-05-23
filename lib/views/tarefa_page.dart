@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../controllers/tarefa_controller.dart';
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 class TarefaPage extends StatefulWidget {
   const TarefaPage({super.key});
 
@@ -31,6 +33,14 @@ class _TarefaPageState extends State<TarefaPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Tarefas (To-Do)'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await Supabase.instance.client.auth.signOut();
+            },
+          ),
+        ],
       ),
       body: ListenableBuilder(
         listenable: _controller,

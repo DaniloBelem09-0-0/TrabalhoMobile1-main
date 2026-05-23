@@ -13,10 +13,10 @@ class Tarefa {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      if (id != null) 'id': id,
       'titulo': titulo,
       'descricao': descricao,
-      'concluida': concluida ? 1 : 0, // SQLite armazena booleanos como 0 ou 1
+      'concluida': concluida,
     };
   }
 
@@ -25,7 +25,7 @@ class Tarefa {
       id: mapa['id'],
       titulo: mapa['titulo'],
       descricao: mapa['descricao'],
-      concluida: mapa['concluida'] == 1,
+      concluida: mapa['concluida'] is bool ? mapa['concluida'] : mapa['concluida'] == 1,
     );
   }
 }

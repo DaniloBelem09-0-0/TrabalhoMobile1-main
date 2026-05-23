@@ -1,21 +1,14 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-//instalar as dependências
-//flutter pub add sqflite_common_ffi
-//flutter pub get
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'services/database_service.dart';
+import 'views/login_page.dart';
 import 'views/tarefa_page.dart';
 
 void main() async {
-  // Garante que os widgets do Flutter estejam inicializados antes de rodar qualquer código nativo
   WidgetsFlutterBinding.ensureInitialized();
-
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    // Inicializa o FFI para suportar SQLite no Desktop
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  }
-
+  await dotenv.load(fileName: ".env");
+  await DatabaseService.inicializar();
   runApp(const MyApp());
 }
 
@@ -30,8 +23,30 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const TarefaPage(),
+      home: const AuthGate(),
       debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<AuthState>(
+      stream: Supabase.instance.client.auth.onAuthStateChange,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        final session = snapshot.data?.session;
+        if (session != null) {
+          return const TarefaPage();
+        } else {
+          return const LoginPage();
+        }
+      },
     );
   }
 }
